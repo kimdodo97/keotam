@@ -28,4 +28,8 @@ public class MemberService {
 
         return savedMember.getId();
     }
+
+    public boolean duplicateMember(String email){
+        return memberRepository.existsByEmail(email);
+    }
 }
