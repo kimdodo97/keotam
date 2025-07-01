@@ -1,0 +1,13 @@
+jwt:
+  secretKey : test
+  access:
+    expiration : 1800000
+    header : Authorization
+  refresh:
+    expiration : 604800000
+    header : Refresh
+
+oauth2:
+  client-id: test
+  client-secret: test
+  redirect-uri: http://localhost:5173/login/oauth2/callback/kakao
