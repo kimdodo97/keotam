@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgis/postgis:15-3.5-alpine:///testdb?currentSchema=app
+    username: postgis
+    password: 1234
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG95Dialect
+        default_schema: app
+oauth2:
+  client-id: 1234
+  client-secret: 1234
+  redirect-uri: http://localhost:5173/login/oauth2/callback/kakao
