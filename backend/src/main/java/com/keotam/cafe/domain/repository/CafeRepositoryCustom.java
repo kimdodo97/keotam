@@ -4,7 +4,8 @@ import com.keotam.cafe.domain.Cafe;
 import com.keotam.cafe.dto.request.CafeSearchRequest;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CafeRepositoryCustom {
-//    List<Cafe> searchCafes(CafeSearchRequest cafeSearchRequest);
+    public Optional<Cafe> findByIdWithBrandAndMenus(Long cafeId);
 }
