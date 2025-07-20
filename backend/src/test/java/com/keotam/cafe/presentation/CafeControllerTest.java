@@ -2,7 +2,9 @@ package com.keotam.cafe.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.keotam.cafe.dto.request.CafeSearchRequest;
+import com.keotam.cafe.dto.response.CafeDetailResponse;
 import com.keotam.cafe.dto.response.CafeSearchResponse;
+import com.keotam.cafe.dto.response.MenuResponse;
 import com.keotam.cafe.service.CafeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,8 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(CafeController.class)
@@ -62,5 +63,52 @@ class CafeControllerTest {
                 .andExpect(jsonPath("$.size()").value(10))
                 .andExpect(jsonPath("$[0].name").value("카페 1"))
                 .andExpect(jsonPath("$[0].distance").value(10.0));
+    }
+
+    @Test
+    @DisplayName("카페ID로 카페 상세 조회시 카페에 대한 브랜드이름과 카페 메뉴 정보가 200응답으로 내려온다")
+    void getCafeDetail200Success() throws Exception {
+        //given
+        List<MenuResponse> coffeeMenus = List.of(
+                MenuResponse.builder()
+                        .name("아메리카노")
+                        .price(2000)
+                        .brand("컴포즈")
+                        .category("COFFEE")
+                        .build(),
+                MenuResponse.builder()
+                        .name("카페라떼")
+                        .price(3000)
+                        .brand("컴포즈")
+                        .category("COFFEE")
+                        .build()
+        );
+
+        List<MenuResponse> nonCoffeeMenus = List.of(
+                MenuResponse.builder()
+                        .name("말차라떼")
+                        .price(5000)
+                        .brand("컴포즈")
+                        .category("NON_COFFEE")
+                        .build()
+        );
+
+        List<CafeDetailResponse> mockedResponse = List.of(
+                CafeDetailResponse.builder()
+                        .category("COFFEE")
+                        .menus(coffeeMenus)
+                        .build(),
+                CafeDetailResponse.builder()
+                        .category("NON_COFFEE")
+                        .menus(nonCoffeeMenus)
+                        .build()
+        );
+        String expectResult = objectMapper.writeValueAsString(mockedResponse);
+        given(cafeService.getCafeDetail(any(Long.class))).willReturn(mockedResponse);
+        //expect
+        mockMvc.perform(get("/cafe/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectResult));
+
     }
 }

@@ -1,15 +1,18 @@
 package com.keotam.cafe.presentation;
 
 import com.keotam.cafe.dto.request.CafeSearchRequest;
+import com.keotam.cafe.dto.response.CafeDetailResponse;
 import com.keotam.cafe.dto.response.CafeSearchResponse;
 import com.keotam.cafe.service.CafeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController()
 @RequestMapping("/cafe") // ✅ 여기에 base path 설정
@@ -22,5 +25,11 @@ public class CafeController {
         List<CafeSearchResponse> cafeSearchResponses = cafeService.searchCafes(request);
 
         return ResponseEntity.ok(cafeSearchResponses);
+    }
+
+    @GetMapping("/{cafeId}")
+    public ResponseEntity<List<CafeDetailResponse>> getCafeDetails(@PathVariable("cafeId") Long cafeId) {
+        List<CafeDetailResponse> cafeDetail = cafeService.getCafeDetail(cafeId);
+        return ResponseEntity.ok(cafeDetail);
     }
 }

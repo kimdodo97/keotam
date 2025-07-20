@@ -16,7 +16,10 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.anyRequest().permitAll());
+                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests
+                        .requestMatchers("/h2-console/**", "/swagger-ui/**", "/health", "/v3/api-docs", "/swagger/**","/actuator/**").permitAll()
+                        .anyRequest().permitAll()
+                );
         return http.build();
     }
 }

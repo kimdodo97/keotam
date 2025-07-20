@@ -31,13 +31,18 @@ public class Cafe {
     @Column(columnDefinition = "geometry(Point,4326)")
     private Point location;
 
+    @ManyToOne
+    @JoinColumn(name="brand_id")
+    private Brand brand;
+
     @Builder
-    public Cafe(Long id, String name, String address, Double latitude, Double longitude, Point location) {
+    public Cafe(Long id, String name, String address, Double latitude, Double longitude, Point location, Brand brand) {
         this.id = id;
         this.name = name;
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
         this.location = location;
+        this.brand = brand;
     }
 }
