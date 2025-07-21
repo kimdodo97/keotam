@@ -3,4 +3,6 @@ spring:
     ansi:
       enabled: always
   profiles:
-    active: dev
+    active: local
+app:
+  domain : http://localhost
