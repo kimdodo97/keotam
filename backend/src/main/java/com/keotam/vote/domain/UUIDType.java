@@ -1,4 +1,6 @@
 package com.keotam.vote.domain;
 
-public class UUIDType {
+public enum UUIDType {
+    ADMIN,
+    ATTENDANCE
 }
