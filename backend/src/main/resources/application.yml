@@ -4,5 +4,3 @@ spring:
       enabled: always
   profiles:
     active: local
-app:
-  domain : http://localhost
