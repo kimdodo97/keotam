@@ -8,8 +8,8 @@ import com.keotam.vote.domain.UUIDType;
 import com.keotam.vote.domain.Vote;
 import com.keotam.vote.domain.VoteStatus;
 import com.keotam.vote.domain.repository.VoteRepository;
-import com.keotam.vote.dto.request.VoteRegisterRequest;
-import com.keotam.vote.dto.response.VoteRegisterResponse;
+import com.keotam.vote.dto.request.VoteCreateRequest;
+import com.keotam.vote.dto.response.VoteCreateResponse;
 import com.keotam.vote.util.UUIDGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,32 +25,27 @@ public class VoteService {
     private final UUIDGenerator uuidGenerator;
     private final PasswordEncryptor passwordEncryptor;
 
-    @Value("${app.domain}")
-    private String APP_DOMAIN;
-
-    public VoteRegisterResponse createVote(VoteRegisterRequest voteRegisterRequest){
-        Cafe cafe = cafeRepository.findById(voteRegisterRequest.getCafeId())
+    public VoteCreateResponse createVote(VoteCreateRequest voteCreateRequest){
+        Cafe cafe = cafeRepository.findById(voteCreateRequest.getCafeId())
                 .orElseThrow(CafeNotFound::new);
 
-        String manageUrl = APP_DOMAIN + "/vote/admin/" +uuidGenerator.generateUUID(UUIDType.ADMIN);
-        String joinUrl = APP_DOMAIN + "/vote/join/" + uuidGenerator.generateUUID(UUIDType.ATTENDANCE);
-        String savedPassword =passwordEncryptor.encode(voteRegisterRequest.getPassword());
+        String savedPassword =passwordEncryptor.encode(voteCreateRequest.getPassword());
 
         Vote vote = Vote.builder()
-                .voteName(voteRegisterRequest.getVoteName())
+                .voteName(voteCreateRequest.getVoteName())
                 .votePw(savedPassword)
-                .manageUrl(manageUrl)
-                .joinUrl(joinUrl)
+                .manageUrl(uuidGenerator.generateUUID(UUIDType.ADMIN))
+                .joinUrl(uuidGenerator.generateUUID(UUIDType.ATTENDANCE))
                 .status(VoteStatus.IN_PROGRESS)
                 .cafe(cafe)
                 .build();
 
         voteRepository.save(vote);
 
-        return VoteRegisterResponse.builder()
+        return VoteCreateResponse.builder()
                 .voteId(vote.getId())
-                .manageUrl(vote.getManageUrl())
-                .joinUrl(vote.getJoinUrl())
+                .manageUUID(vote.getManageUrl())
+                .joinUUID(vote.getJoinUrl())
                 .voteName(vote.getVoteName())
                 .build();
     }
