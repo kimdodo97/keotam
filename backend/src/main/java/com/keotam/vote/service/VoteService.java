@@ -28,7 +28,7 @@ public class VoteService {
     @Value("${app.domain}")
     private String APP_DOMAIN;
 
-    public VoteRegisterResponse registerVote(VoteRegisterRequest voteRegisterRequest){
+    public VoteRegisterResponse createVote(VoteRegisterRequest voteRegisterRequest){
         Cafe cafe = cafeRepository.findById(voteRegisterRequest.getCafeId())
                 .orElseThrow(CafeNotFound::new);
 
