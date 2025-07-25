@@ -85,7 +85,7 @@ class VoteServiceTest {
                 .voteName("점심커피주문")
                 .build();
         //when
-        VoteRegisterResponse result = voteService.registerVote(request);
+        VoteRegisterResponse result = voteService.createVote(request);
 
         //then
         assertEquals(result.getVoteId(),1L);
