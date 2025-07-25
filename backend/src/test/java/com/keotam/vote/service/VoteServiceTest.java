@@ -6,8 +6,8 @@ import com.keotam.global.service.PasswordEncryptor;
 import com.keotam.vote.domain.UUIDType;
 import com.keotam.vote.domain.Vote;
 import com.keotam.vote.domain.repository.VoteRepository;
-import com.keotam.vote.dto.request.VoteRegisterRequest;
-import com.keotam.vote.dto.response.VoteRegisterResponse;
+import com.keotam.vote.dto.request.VoteCreateRequest;
+import com.keotam.vote.dto.response.VoteCreateResponse;
 import com.keotam.vote.util.UUIDGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,12 +44,6 @@ class VoteServiceTest {
     @Mock
     CafeRepository cafeRepository;
 
-    @BeforeEach
-    void setUp() {
-        voteService = new VoteService(voteRepository, cafeRepository, uuidGenerator, passwordEncryptor);
-        ReflectionTestUtils.setField(voteService, "APP_DOMAIN", "http://test-url");
-    }
-
     @Test
     @DisplayName("선택된 카페의 투표 생성 시 투표 매니지UUIDURL,")
     void registerCafeSuccess() throws Exception {
@@ -78,19 +72,19 @@ class VoteServiceTest {
             idField.set(vote, 1L); // 원하는 ID 설정
             return vote;
         });
-        
-        VoteRegisterRequest request = VoteRegisterRequest.builder()
+
+        VoteCreateRequest request = VoteCreateRequest.builder()
                 .cafeId(1L)
                 .password("password")
                 .voteName("점심커피주문")
                 .build();
         //when
-        VoteRegisterResponse result = voteService.createVote(request);
+        VoteCreateResponse result = voteService.createVote(request);
 
         //then
         assertEquals(result.getVoteId(),1L);
         assertEquals(result.getVoteName(),"점심커피주문");
-        assertEquals(result.getManageUrl(),"http://test-url/vote/admin/adminUUID");
-        assertEquals(result.getJoinUrl(),"http://test-url/vote/join/attendUUID");
+        assertEquals(result.getManageUUID(),"adminUUID");
+        assertEquals(result.getJoinUUID(),"attendUUID");
     }
 }
