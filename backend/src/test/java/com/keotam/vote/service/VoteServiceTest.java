@@ -1,13 +1,20 @@
 package com.keotam.vote.service;
 
+import com.keotam.cafe.domain.Brand;
+import com.keotam.cafe.domain.BrandMenu;
 import com.keotam.cafe.domain.Cafe;
+import com.keotam.cafe.domain.MenuCategory;
 import com.keotam.cafe.domain.repository.CafeRepository;
 import com.keotam.global.service.PasswordEncryptor;
 import com.keotam.vote.domain.UUIDType;
 import com.keotam.vote.domain.Vote;
+import com.keotam.vote.domain.Voter;
 import com.keotam.vote.domain.repository.VoteRepository;
+import com.keotam.vote.domain.repository.VoterRepository;
 import com.keotam.vote.dto.request.VoteCreateRequest;
+import com.keotam.vote.dto.request.VoterCreateRequest;
 import com.keotam.vote.dto.response.VoteCreateResponse;
+import com.keotam.vote.dto.response.VotePageResponse;
 import com.keotam.vote.util.UUIDGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +41,9 @@ class VoteServiceTest {
 
     @Mock
     VoteRepository voteRepository;
+
+    @Mock
+    VoterRepository voterRepository;
 
     @Mock
     UUIDGenerator uuidGenerator;
@@ -82,9 +92,78 @@ class VoteServiceTest {
         VoteCreateResponse result = voteService.createVote(request);
 
         //then
-        assertEquals(result.getVoteId(),1L);
-        assertEquals(result.getVoteName(),"점심커피주문");
-        assertEquals(result.getManageUUID(),"adminUUID");
-        assertEquals(result.getJoinUUID(),"attendUUID");
+        assertEquals(result.getVoteId(), 1L);
+        assertEquals(result.getVoteName(), "점심커피주문");
+        assertEquals(result.getManageUUID(), "adminUUID");
+        assertEquals(result.getJoinUUID(), "attendUUID");
+    }
+
+    @Test
+    @DisplayName("투표자를 생성하면 카페 메뉴와 투표 및 투표자 정보를 반환한다.")
+    void createJoinVoter() throws Exception {
+        //given
+        BrandMenu menu1 = BrandMenu.builder()
+                .name("아메리카노")
+                .category(MenuCategory.COFFEE)
+                .price(2000)
+                .build();
+        BrandMenu menu2 = BrandMenu.builder()
+                .name("말차라떼")
+                .category(MenuCategory.NON_COFFEE)
+                .price(5000)
+                .build();
+        BrandMenu menu3 = BrandMenu.builder()
+                .name("카페라떼")
+                .category(MenuCategory.COFFEE)
+                .price(3000)
+                .build();
+
+        Brand brand = Brand.builder()
+                .name("컴포즈")
+                .build();
+        brand.addMenu(menu1);
+        brand.addMenu(menu2);
+        brand.addMenu(menu3);
+
+        Cafe cafe = Cafe.builder()
+                .name("컴포즈")
+                .address("창원시")
+                .longitude(123.0)
+                .latitude(123.0)
+                .brand(brand)
+                .build();
+        
+        VoterCreateRequest voterCreateRequest = VoterCreateRequest.builder()
+                .voteId(1L)
+                .voterName("김도도")
+                .build();
+        Vote vote = Vote.builder()
+                .id(1L)
+                .voteName("점심커탐")
+                .votePw("password")
+                .joinUrl("joinUUID")
+                .manageUrl("manageUUID")
+                .cafe(cafe)
+                .build();
+        
+        given(voteRepository.findById(1L))
+                .willReturn(Optional.ofNullable(vote));
+
+        when(voterRepository.save(any(Voter.class))).thenAnswer(invocation -> {
+            Voter voter = invocation.getArgument(0);
+            Field idField = Voter.class.getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(voter, 1L); // 원하는 ID 설정
+            return voter;
+        });
+
+        //when
+        VotePageResponse result = voteService.createVoter(voterCreateRequest);
+        //then
+        assertEquals(result.getVoteId(), 1L);
+        assertEquals(result.getVoterName(),"김도도");
+        assertEquals(result.getVoteName(),"점심커탐");
+        assertEquals(result.getBrandName(),brand.getName());
+        assertEquals(result.getBrandId(),brand.getId());
     }
 }
