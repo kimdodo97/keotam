@@ -8,10 +8,10 @@ import com.keotam.cafe.dto.response.CafeDetailResponse;
 import com.keotam.cafe.dto.response.MenuResponse;
 import com.keotam.cafe.exception.CafeNotFound;
 import com.keotam.global.service.PasswordEncryptor;
-import com.keotam.vote.domain.UUIDType;
 import com.keotam.vote.domain.Vote;
 import com.keotam.vote.domain.VoteStatus;
 import com.keotam.vote.domain.Voter;
+import com.keotam.vote.domain.VoterType;
 import com.keotam.vote.domain.repository.VoteRepository;
 import com.keotam.vote.domain.repository.VoterRepository;
 import com.keotam.vote.dto.request.VoteCreateRequest;
@@ -21,7 +21,6 @@ import com.keotam.vote.dto.response.VotePageResponse;
 import com.keotam.vote.exception.VoteNotFound;
 import com.keotam.vote.util.UUIDGenerator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,19 +48,28 @@ public class VoteService {
         Vote vote = Vote.builder()
                 .voteName(voteCreateRequest.getVoteName())
                 .votePw(savedPassword)
-                .manageUrl(uuidGenerator.generateUUID(UUIDType.ADMIN))
-                .joinUrl(uuidGenerator.generateUUID(UUIDType.ATTENDANCE))
+                .manageUrl(uuidGenerator.generateUUID(VoterType.ADMIN))
+                .joinUrl(uuidGenerator.generateUUID(VoterType.ATTENDANCE))
                 .status(VoteStatus.IN_PROGRESS)
                 .cafe(cafe)
                 .build();
 
         voteRepository.save(vote);
 
+        Voter admin = Voter.builder()
+                .vote(vote)
+                .voterUid(uuidGenerator.generateUUID(VoterType.ADMIN))
+                .voterName(voteCreateRequest.getAdminName())
+                .voterType(VoterType.ADMIN)
+                .build();
+        voterRepository.save(admin);
+
         return VoteCreateResponse.builder()
                 .voteId(vote.getId())
                 .manageUUID(vote.getManageUrl())
                 .joinUUID(vote.getJoinUrl())
                 .voteName(vote.getVoteName())
+                .adminUUID(admin.getVoterUid())
                 .build();
     }
 
@@ -72,7 +80,7 @@ public class VoteService {
         //신규 참여자와 투표간 연관관계 설정
         Voter newVoter = Voter.builder()
                 .voterName(voterCreateRequest.getVoterName())
-                .voterUid(uuidGenerator.generateUUID(UUIDType.ATTENDANCE))
+                .voterUid(uuidGenerator.generateUUID(VoterType.ATTENDANCE))
                 .vote(vote)
                 .build();
         voterRepository.save(newVoter);
