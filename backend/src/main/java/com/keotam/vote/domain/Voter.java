@@ -15,7 +15,7 @@ public class Voter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String voterUid;
+    private String voterUuid;
 
     private String voterName;
 
@@ -26,9 +26,9 @@ public class Voter {
     private Vote vote;
 
     @Builder
-    public Voter(Long id, String voterUid, String voterName, VoterType voterType, Vote vote) {
+    public Voter(Long id, String voterUuid, String voterName, VoterType voterType, Vote vote) {
         this.id = id;
-        this.voterUid = voterUid;
+        this.voterUuid = voterUuid;
         this.voterName = voterName;
         this.voterType = voterType;
         this.vote = vote;

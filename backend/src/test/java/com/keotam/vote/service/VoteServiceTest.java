@@ -66,9 +66,9 @@ class VoteServiceTest {
                 .willReturn(Optional.ofNullable(cafe));
 
         given(uuidGenerator.generateUUID(VoterType.ADMIN))
-                .willReturn("adminUUID");
-        given(uuidGenerator.generateUUID(VoterType.ATTENDANCE))
-                .willReturn("attendUUID");
+                .willReturn("adminUuid");
+        given(uuidGenerator.generateUUID(VoterType.INVITED))
+                .willReturn("shareUuid");
         given(passwordEncryptor.encode("password"))
                 .willReturn("encodePassword");
 
@@ -93,9 +93,9 @@ class VoteServiceTest {
         verify(voterRepository,times(1)).save(any(Voter.class));
         assertEquals(result.getVoteId(), 1L);
         assertEquals(result.getVoteName(), "점심커피주문");
-        assertEquals(result.getManageUUID(), "adminUUID");
-        assertEquals(result.getJoinUUID(), "attendUUID");
-        assertEquals(result.getAdminUUID(), "adminUUID");
+        assertEquals(result.getAdminUuid(), "adminUuid");
+        assertEquals(result.getShareUuid(), "shareUuid");
+        assertEquals(result.getVoterUuid(), "adminUuid");
 
     }
 
@@ -142,8 +142,8 @@ class VoteServiceTest {
                 .id(1L)
                 .voteName("점심커탐")
                 .votePw("password")
-                .joinUrl("joinUUID")
-                .manageUrl("manageUUID")
+                .shareUuid("sharUuid")
+                .adminUuid("adminUuid")
                 .cafe(cafe)
                 .build();
         

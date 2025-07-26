@@ -48,8 +48,8 @@ public class VoteService {
         Vote vote = Vote.builder()
                 .voteName(voteCreateRequest.getVoteName())
                 .votePw(savedPassword)
-                .manageUrl(uuidGenerator.generateUUID(VoterType.ADMIN))
-                .joinUrl(uuidGenerator.generateUUID(VoterType.ATTENDANCE))
+                .adminUuid(uuidGenerator.generateUUID(VoterType.ADMIN))
+                .shareUuid(uuidGenerator.generateUUID(VoterType.INVITED))
                 .status(VoteStatus.IN_PROGRESS)
                 .cafe(cafe)
                 .build();
@@ -58,7 +58,7 @@ public class VoteService {
 
         Voter admin = Voter.builder()
                 .vote(vote)
-                .voterUid(uuidGenerator.generateUUID(VoterType.ADMIN))
+                .voterUuid(uuidGenerator.generateUUID(VoterType.ADMIN))
                 .voterName(voteCreateRequest.getAdminName())
                 .voterType(VoterType.ADMIN)
                 .build();
@@ -66,10 +66,10 @@ public class VoteService {
 
         return VoteCreateResponse.builder()
                 .voteId(vote.getId())
-                .manageUUID(vote.getManageUrl())
-                .joinUUID(vote.getJoinUrl())
+                .adminUuid(vote.getAdminUuid())
+                .shareUuid(vote.getShareUuid())
                 .voteName(vote.getVoteName())
-                .adminUUID(admin.getVoterUid())
+                .voterUuid(admin.getVoterUuid())
                 .build();
     }
 
@@ -80,7 +80,7 @@ public class VoteService {
         //신규 참여자와 투표간 연관관계 설정
         Voter newVoter = Voter.builder()
                 .voterName(voterCreateRequest.getVoterName())
-                .voterUid(uuidGenerator.generateUUID(VoterType.ATTENDANCE))
+                .voterUuid(uuidGenerator.generateUUID(VoterType.INVITED))
                 .vote(vote)
                 .build();
         voterRepository.save(newVoter);
@@ -101,7 +101,7 @@ public class VoteService {
         return VotePageResponse.builder()
                 .voteId(vote.getId())
                 .voteName(vote.getVoteName())
-                .voterUid(newVoter.getVoterUid())
+                .voterUid(newVoter.getVoterUuid())
                 .voterName(newVoter.getVoterName())
                 .brandId(brand.getId())
                 .brandName(brand.getName())

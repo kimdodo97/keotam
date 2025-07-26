@@ -19,9 +19,12 @@ public class Vote {
     @Column(name = "vote_id")
     private Long id;
 
-    private String manageUrl;
+    @Column(name = "admin_uuid", nullable = false, unique = true)
+    private String adminUuid;
 
-    private String joinUrl;
+    // 참여자용 UUID (투표 참여)
+    @Column(name = "share_uuid", nullable = false, unique = true)
+    private String shareUuid;
 
     private String voteName;
 
@@ -38,14 +41,15 @@ public class Vote {
     private List<Voter> voters = new ArrayList<>();
 
     @Builder
-    public Vote(Long id, String manageUrl, String joinUrl, String voteName, String votePw, VoteStatus status, Cafe cafe) {
+    public Vote(Long id, String adminUuid, String shareUuid, String voteName, String votePw, VoteStatus status, Cafe cafe, List<Voter> voters) {
         this.id = id;
-        this.manageUrl = manageUrl;
-        this.joinUrl = joinUrl;
+        this.adminUuid = adminUuid;
+        this.shareUuid = shareUuid;
         this.voteName = voteName;
         this.votePw = votePw;
         this.status = status;
         this.cafe = cafe;
+        this.voters = voters;
     }
 
     public void addVoter(Voter voter) {

@@ -45,8 +45,8 @@ class VoteControllerTest {
         VoteCreateResponse response = VoteCreateResponse.builder()
                 .voteId(1L)
                 .voteName("점심커피주문")
-                .joinUUID("joinUUID")
-                .manageUUID("manageUUID")
+                .shareUuid("shareUuid")
+                .adminUuid("adminUuid")
                 .build();
         given(voteService.createVote(any(VoteCreateRequest.class))).willReturn(response);
 
@@ -56,10 +56,10 @@ class VoteControllerTest {
                         .content(objectMapper.writeValueAsString(request))
                 )
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "/vote/joinUUID"))
+                .andExpect(header().string("Location", "/vote/" + response.getShareUuid()))
                 .andExpect(jsonPath("$.voteId").value(1L))
                 .andExpect(jsonPath("$.voteName").value("점심커피주문"))
-                .andExpect(jsonPath("$.joinUUID").value("joinUUID"))
-                .andExpect(jsonPath("$.manageUUID").value("manageUUID"));
+                .andExpect(jsonPath("$.shareUuid").value(response.getShareUuid()))
+                .andExpect(jsonPath("$.adminUuid").value(response.getAdminUuid()));
     }
 }

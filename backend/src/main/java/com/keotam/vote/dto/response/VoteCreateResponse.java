@@ -7,16 +7,16 @@ import lombok.Getter;
 public class VoteCreateResponse {
     private Long voteId;
     private String voteName;
-    private String manageUUID;
-    private String joinUUID;
-    private String adminUUID;
+    private String adminUuid;
+    private String shareUuid;
+    private String voterUuid;
 
     @Builder
-    public VoteCreateResponse(Long voteId, String voteName, String manageUUID, String joinUUID, String adminUUID) {
+    public VoteCreateResponse(Long voteId, String voteName, String adminUuid, String shareUuid, String voterUuid) {
         this.voteId = voteId;
         this.voteName = voteName;
-        this.manageUUID = manageUUID;
-        this.joinUUID = joinUUID;
-        this.adminUUID = adminUUID;
+        this.adminUuid = adminUuid;
+        this.shareUuid = shareUuid;
+        this.voterUuid = voterUuid;
     }
 }
