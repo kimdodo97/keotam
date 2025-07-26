@@ -6,9 +6,9 @@ import com.keotam.cafe.domain.Cafe;
 import com.keotam.cafe.domain.MenuCategory;
 import com.keotam.cafe.domain.repository.CafeRepository;
 import com.keotam.global.service.PasswordEncryptor;
-import com.keotam.vote.domain.UUIDType;
 import com.keotam.vote.domain.Vote;
 import com.keotam.vote.domain.Voter;
+import com.keotam.vote.domain.VoterType;
 import com.keotam.vote.domain.repository.VoteRepository;
 import com.keotam.vote.domain.repository.VoterRepository;
 import com.keotam.vote.dto.request.VoteCreateRequest;
@@ -16,23 +16,20 @@ import com.keotam.vote.dto.request.VoterCreateRequest;
 import com.keotam.vote.dto.response.VoteCreateResponse;
 import com.keotam.vote.dto.response.VotePageResponse;
 import com.keotam.vote.util.UUIDGenerator;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class VoteServiceTest {
@@ -55,7 +52,7 @@ class VoteServiceTest {
     CafeRepository cafeRepository;
 
     @Test
-    @DisplayName("선택된 카페의 투표 생성 시 투표 매니지UUIDURL,")
+    @DisplayName("선택된 카페의 투표 생성 시 투표/어드민 투표자가 저장되고 투표 관리 정보를 반환한다.")
     void registerCafeSuccess() throws Exception {
         //given
         Cafe cafe = Cafe.builder()
@@ -68,9 +65,9 @@ class VoteServiceTest {
         given(cafeRepository.findById(1L))
                 .willReturn(Optional.ofNullable(cafe));
 
-        given(uuidGenerator.generateUUID(UUIDType.ADMIN))
+        given(uuidGenerator.generateUUID(VoterType.ADMIN))
                 .willReturn("adminUUID");
-        given(uuidGenerator.generateUUID(UUIDType.ATTENDANCE))
+        given(uuidGenerator.generateUUID(VoterType.ATTENDANCE))
                 .willReturn("attendUUID");
         given(passwordEncryptor.encode("password"))
                 .willReturn("encodePassword");
@@ -92,10 +89,14 @@ class VoteServiceTest {
         VoteCreateResponse result = voteService.createVote(request);
 
         //then
+        verify(uuidGenerator, times(2)).generateUUID(VoterType.ADMIN);
+        verify(voterRepository,times(1)).save(any(Voter.class));
         assertEquals(result.getVoteId(), 1L);
         assertEquals(result.getVoteName(), "점심커피주문");
         assertEquals(result.getManageUUID(), "adminUUID");
         assertEquals(result.getJoinUUID(), "attendUUID");
+        assertEquals(result.getAdminUUID(), "adminUUID");
+
     }
 
     @Test
