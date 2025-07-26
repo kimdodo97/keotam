@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,6 +34,9 @@ public class Vote {
     @JoinColumn(name = "cafe_id")
     private Cafe cafe;
 
+    @OneToMany(mappedBy="vote", cascade = CascadeType.ALL)
+    private List<Voter> voters = new ArrayList<>();
+
     @Builder
     public Vote(Long id, String manageUrl, String joinUrl, String voteName, String votePw, VoteStatus status, Cafe cafe) {
         this.id = id;
@@ -40,5 +46,9 @@ public class Vote {
         this.votePw = votePw;
         this.status = status;
         this.cafe = cafe;
+    }
+
+    public void addVoter(Voter voter) {
+        voters.add(voter);
     }
 }
