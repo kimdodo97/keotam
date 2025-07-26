@@ -19,15 +19,18 @@ public class Voter {
 
     private String voterName;
 
+    private VoterType voterType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vote_id")
     private Vote vote;
 
     @Builder
-    public Voter(Long id, String voterUid, String voterName, Vote vote) {
+    public Voter(Long id, String voterUid, String voterName, VoterType voterType, Vote vote) {
         this.id = id;
         this.voterUid = voterUid;
         this.voterName = voterName;
+        this.voterType = voterType;
         this.vote = vote;
     }
 }
