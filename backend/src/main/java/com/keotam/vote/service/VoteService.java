@@ -73,11 +73,10 @@ public class VoteService {
                 .build();
     }
 
-    public VotePageResponse createVoter(VoterCreateRequest voterCreateRequest) {
-        Vote vote = voteRepository.findById(voterCreateRequest.getVoteId())
+    public VotePageResponse createVoter(String shareUuid, VoterCreateRequest voterCreateRequest) {
+        Vote vote = voteRepository.findByShareUuid(shareUuid)
                 .orElseThrow(VoteNotFound::new);
-        //신규 참여자 생성
-        //신규 참여자와 투표간 연관관계 설정
+
         Voter newVoter = Voter.builder()
                 .voterName(voterCreateRequest.getVoterName())
                 .voterUuid(uuidGenerator.generateUUID(VoterType.INVITED))
@@ -85,7 +84,6 @@ public class VoteService {
                 .build();
         voterRepository.save(newVoter);
 
-        //참여 완료 했으니 투표 화면 반환
         Cafe cafe = vote.getCafe();
         Brand brand = cafe.getBrand();
         List<BrandMenu> menus = brand.getMenus();
@@ -93,6 +91,7 @@ public class VoteService {
                 .map(MenuResponse::fromEntity)
                 .sorted(Comparator.comparing(MenuResponse::getPrice))
                 .collect(Collectors.groupingBy(MenuResponse::getCategory));
+
         List<CafeDetailResponse> cafeDetailResponses = menuResponse.entrySet()
                 .stream()
                 .map(entry -> new CafeDetailResponse(entry.getKey(), entry.getValue()))
