@@ -100,7 +100,7 @@ public class VoteService {
         return VotePageResponse.builder()
                 .voteId(vote.getId())
                 .voteName(vote.getVoteName())
-                .voterUid(newVoter.getVoterUuid())
+                .voterUuid(newVoter.getVoterUuid())
                 .voterName(newVoter.getVoterName())
                 .brandId(brand.getId())
                 .brandName(brand.getName())
