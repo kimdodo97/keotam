@@ -3,6 +3,7 @@ package com.keotam.vote.presentation;
 import com.keotam.vote.dto.request.VoteCreateRequest;
 import com.keotam.vote.dto.request.VoterCreateRequest;
 import com.keotam.vote.dto.response.VoteCreateResponse;
+import com.keotam.vote.dto.response.VotePageResponse;
 import com.keotam.vote.service.VoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +23,11 @@ public class VoteController {
                 .body(voteCreateResponse);
     }
 
-    @GetMapping("/votes/{joinUUID}/voters")
-    public void createVoter(@PathVariable String joinUUID, VoterCreateRequest voterCreateRequest) {
-//        voteService.createVoter();
+    @PostMapping("/votes/{shareUuid}/voters")
+    public ResponseEntity<VotePageResponse> createVoter(@PathVariable String shareUuid, VoterCreateRequest voterCreateRequest) {
+        VotePageResponse votePageResponse = voteService.createVoter(shareUuid, voterCreateRequest);
+        return ResponseEntity.created(URI.create("/vote/" + shareUuid))
+                .body(votePageResponse);
     }
 
 }
