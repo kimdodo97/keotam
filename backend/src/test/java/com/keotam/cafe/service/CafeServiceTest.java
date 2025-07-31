@@ -165,8 +165,7 @@ class CafeServiceTest {
         //then
         assertEquals(cafeDetailResponses.size(),2);
         assertEquals(cafeDetailResponses.get(0).getMenus().size(),2);
-        assertEquals(cafeDetailResponses.get(0).getMenus().get(0).getBrand(),"컴포즈");
-        
+
         assertEquals(cafeDetailResponses.get(0).getCategory(),"COFFEE");
         assertEquals(cafeDetailResponses.get(0).getMenus().get(0).getPrice(),2000);
         assertEquals(cafeDetailResponses.get(0).getMenus().get(0).getName(),"아메리카노");

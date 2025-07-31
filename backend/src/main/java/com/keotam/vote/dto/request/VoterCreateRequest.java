@@ -5,12 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class VoterCreateRequest {
-    private Long voteId;
     private String voterName;
 
     @Builder
-    public VoterCreateRequest(Long voteId, String voterName) {
-        this.voteId = voteId;
+    public VoterCreateRequest(String voterName) {
         this.voterName = voterName;
     }
 }

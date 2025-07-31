@@ -133,21 +133,21 @@ class VoteServiceTest {
                 .latitude(123.0)
                 .brand(brand)
                 .build();
-        
+
+        String shareUuid = "shareUuid";
         VoterCreateRequest voterCreateRequest = VoterCreateRequest.builder()
-                .voteId(1L)
                 .voterName("김도도")
                 .build();
         Vote vote = Vote.builder()
                 .id(1L)
                 .voteName("점심커탐")
                 .votePw("password")
-                .shareUuid("sharUuid")
+                .shareUuid("shareUuid")
                 .adminUuid("adminUuid")
                 .cafe(cafe)
                 .build();
         
-        given(voteRepository.findById(1L))
+        given(voteRepository.findByShareUuid(shareUuid))
                 .willReturn(Optional.ofNullable(vote));
 
         when(voterRepository.save(any(Voter.class))).thenAnswer(invocation -> {
@@ -159,12 +159,15 @@ class VoteServiceTest {
         });
 
         //when
-        VotePageResponse result = voteService.createVoter(voterCreateRequest);
+        VotePageResponse result = voteService.createVoter(shareUuid,voterCreateRequest);
         //then
         assertEquals(result.getVoteId(), 1L);
         assertEquals(result.getVoterName(),"김도도");
         assertEquals(result.getVoteName(),"점심커탐");
         assertEquals(result.getBrandName(),brand.getName());
         assertEquals(result.getBrandId(),brand.getId());
+        assertEquals(result.getCafeDetailResponse().get(0).getCategory(),MenuCategory.COFFEE.toString());
+        assertEquals(result.getCafeDetailResponse().get(0).getMenus().get(0).getName(),"아메리카노");
+        assertEquals(result.getCafeDetailResponse().get(0).getMenus().get(0).getPrice(),2000);
     }
 }

@@ -11,17 +11,17 @@ public class VotePageResponse {
     private Long voteId;
     private String voteName;
     private String voterName;
-    private String voterUid;
+    private String voterUuid;
     private Long brandId;
     private String brandName;
     private List<CafeDetailResponse> cafeDetailResponse;
 
     @Builder
-    public VotePageResponse(Long voteId, String voteName, String voterName, String voterUid, Long brandId, String brandName, List<CafeDetailResponse> cafeDetailResponse) {
+    public VotePageResponse(Long voteId, String voteName, String voterName, String voterUuid, Long brandId, String brandName, List<CafeDetailResponse> cafeDetailResponse) {
         this.voteId = voteId;
         this.voteName = voteName;
         this.voterName = voterName;
-        this.voterUid = voterUid;
+        this.voterUuid = voterUuid;
         this.brandId = brandId;
         this.brandName = brandName;
         this.cafeDetailResponse = cafeDetailResponse;

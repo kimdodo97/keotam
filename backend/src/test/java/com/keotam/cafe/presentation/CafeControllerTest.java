@@ -71,24 +71,24 @@ class CafeControllerTest {
         //given
         List<MenuResponse> coffeeMenus = List.of(
                 MenuResponse.builder()
+                        .menuId(1L)
                         .name("아메리카노")
                         .price(2000)
-                        .brand("컴포즈")
                         .category("COFFEE")
                         .build(),
                 MenuResponse.builder()
+                        .menuId(2L)
                         .name("카페라떼")
                         .price(3000)
-                        .brand("컴포즈")
                         .category("COFFEE")
                         .build()
         );
 
         List<MenuResponse> nonCoffeeMenus = List.of(
                 MenuResponse.builder()
+                        .menuId(3L)
                         .name("말차라떼")
                         .price(5000)
-                        .brand("컴포즈")
                         .category("NON_COFFEE")
                         .build()
         );
