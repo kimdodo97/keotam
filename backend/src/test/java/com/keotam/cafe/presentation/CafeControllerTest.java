@@ -6,25 +6,25 @@ import com.keotam.cafe.dto.response.CafeDetailResponse;
 import com.keotam.cafe.dto.response.CafeSearchResponse;
 import com.keotam.cafe.dto.response.MenuResponse;
 import com.keotam.cafe.service.CafeService;
+import com.keotam.global.config.SecurityConfig;
+import com.keotam.global.security.vote.VoterAuthenticationProvider;
+import com.keotam.vote.domain.repository.VoterRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.util.List;
 import java.util.stream.IntStream;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(CafeController.class)
+@Import(SecurityConfig.class)
 class CafeControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -34,6 +34,12 @@ class CafeControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private VoterRepository voterRepository;
+
+    @MockitoBean
+    private VoterAuthenticationProvider voterAuthenticationProvider;
 
     @Test
     @DisplayName("검색어와 위치정보가 포함된 카페 조회 요청 시 카페 리스트가 반환됩니다. 200응답과 함꼐")
