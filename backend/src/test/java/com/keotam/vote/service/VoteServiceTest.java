@@ -166,5 +166,8 @@ class VoteServiceTest {
         assertEquals(result.getVoteName(),"점심커탐");
         assertEquals(result.getBrandName(),brand.getName());
         assertEquals(result.getBrandId(),brand.getId());
+        assertEquals(result.getCafeDetailResponse().get(0).getCategory(),MenuCategory.COFFEE.toString());
+        assertEquals(result.getCafeDetailResponse().get(0).getMenus().get(0).getName(),"아메리카노");
+        assertEquals(result.getCafeDetailResponse().get(0).getMenus().get(0).getPrice(),2000);
     }
 }
