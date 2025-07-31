@@ -77,7 +77,7 @@ class VoteControllerTest {
                 .andExpect(jsonPath("$.shareUuid").value(response.getShareUuid()))
                 .andExpect(jsonPath("$.adminUuid").value(response.getAdminUuid()));
     }
-
+  
     @Test
     @DisplayName("투표 참여자 신규 참여 시 카페 투표 정보 페이지와 201 응답코드를 반환한다.")
     void createNewVoterSuccess201() throws Exception {
