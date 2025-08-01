@@ -30,4 +30,10 @@ public class VoteController {
                 .body(votePageResponse);
     }
 
+    @GetMapping("/votes/{shareUuid}")
+    public ResponseEntity<VotePageResponse> getVote(@PathVariable String shareUuid) {
+        VotePageResponse votePageResponse = voteService.getVote(shareUuid);
+        return ResponseEntity.ok(votePageResponse);
+    }
+
 }

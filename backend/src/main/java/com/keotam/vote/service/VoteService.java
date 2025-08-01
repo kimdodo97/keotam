@@ -39,6 +39,21 @@ public class VoteService {
     private final UUIDGenerator uuidGenerator;
     private final PasswordEncryptor passwordEncryptor;
 
+    public VotePageResponse getVote(String shareUuid){
+        Vote vote = voteRepository.findByShareUuid(shareUuid)
+                .orElseThrow(VoteNotFound::new);
+        List<CafeDetailResponse> cafeDetailResponse = toCafeDetailResponse(vote);
+
+        return VotePageResponse.builder()
+                .voteId(vote.getId())
+                .voteName(vote.getVoteName())
+                .brandId(vote.getCafe().getBrand().getId())
+                .brandName(vote.getCafe().getBrand().getName())
+                .cafeDetailResponse(cafeDetailResponse)
+                .build();
+
+    }
+
     public VoteCreateResponse createVote(VoteCreateRequest voteCreateRequest){
         Cafe cafe = cafeRepository.findById(voteCreateRequest.getCafeId())
                 .orElseThrow(CafeNotFound::new);
@@ -84,27 +99,32 @@ public class VoteService {
                 .build();
         voterRepository.save(newVoter);
 
-        Cafe cafe = vote.getCafe();
-        Brand brand = cafe.getBrand();
-        List<BrandMenu> menus = brand.getMenus();
-        Map<String, List<MenuResponse>> menuResponse = menus.stream()
-                .map(MenuResponse::fromEntity)
-                .sorted(Comparator.comparing(MenuResponse::getPrice))
-                .collect(Collectors.groupingBy(MenuResponse::getCategory));
-
-        List<CafeDetailResponse> cafeDetailResponses = menuResponse.entrySet()
-                .stream()
-                .map(entry -> new CafeDetailResponse(entry.getKey(), entry.getValue()))
-                .toList();
+        List<CafeDetailResponse> cafeDetailResponse = toCafeDetailResponse(vote);
 
         return VotePageResponse.builder()
                 .voteId(vote.getId())
                 .voteName(vote.getVoteName())
                 .voterUuid(newVoter.getVoterUuid())
                 .voterName(newVoter.getVoterName())
-                .brandId(brand.getId())
-                .brandName(brand.getName())
-                .cafeDetailResponse(cafeDetailResponses)
+                .brandId(vote.getCafe().getBrand().getId())
+                .brandName(vote.getCafe().getBrand().getName())
+                .cafeDetailResponse(cafeDetailResponse)
                 .build();
+    }
+
+    private List<CafeDetailResponse> toCafeDetailResponse(Vote vote) {
+        Cafe cafe = vote.getCafe();
+        Brand brand = cafe.getBrand();
+        List<BrandMenu> menus = brand.getMenus();
+
+        Map<String, List<MenuResponse>> menuResponse = menus.stream()
+                .map(MenuResponse::fromEntity)
+                .sorted(Comparator.comparing(MenuResponse::getPrice))
+                .collect(Collectors.groupingBy(MenuResponse::getCategory));
+
+        return menuResponse.entrySet()
+                .stream()
+                .map(entry -> new CafeDetailResponse(entry.getKey(), entry.getValue()))
+                .toList();
     }
 }

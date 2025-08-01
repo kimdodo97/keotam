@@ -7,6 +7,7 @@ import com.keotam.cafe.domain.MenuCategory;
 import com.keotam.cafe.domain.repository.CafeRepository;
 import com.keotam.global.service.PasswordEncryptor;
 import com.keotam.vote.domain.Vote;
+import com.keotam.vote.domain.VoteStatus;
 import com.keotam.vote.domain.Voter;
 import com.keotam.vote.domain.VoterType;
 import com.keotam.vote.domain.repository.VoteRepository;
@@ -169,5 +170,61 @@ class VoteServiceTest {
         assertEquals(result.getCafeDetailResponse().get(0).getCategory(),MenuCategory.COFFEE.toString());
         assertEquals(result.getCafeDetailResponse().get(0).getMenus().get(0).getName(),"아메리카노");
         assertEquals(result.getCafeDetailResponse().get(0).getMenus().get(0).getPrice(),2000);
+    }
+
+    @Test
+    @DisplayName("투표 페이지를 조회하면 투표를 위한 카페 정보를 포함한 투표 페이지를 반환한다.")
+    void whenGetVotePageSuccess() throws Exception {
+        //given
+        BrandMenu menu1 = BrandMenu.builder()
+                .name("아메리카노")
+                .category(MenuCategory.COFFEE)
+                .price(2000)
+                .build();
+        BrandMenu menu2 = BrandMenu.builder()
+                .name("말차라떼")
+                .category(MenuCategory.NON_COFFEE)
+                .price(5000)
+                .build();
+        BrandMenu menu3 = BrandMenu.builder()
+                .name("카페라떼")
+                .category(MenuCategory.COFFEE)
+                .price(3000)
+                .build();
+
+        Brand brand = Brand.builder()
+                .name("컴포즈")
+                .build();
+        brand.addMenu(menu1);
+        brand.addMenu(menu2);
+        brand.addMenu(menu3);
+
+        Cafe cafe = Cafe.builder()
+                .name("컴포즈")
+                .address("창원시")
+                .longitude(123.0)
+                .latitude(123.0)
+                .brand(brand)
+                .build();
+
+        Vote vote = Vote.builder()
+                .id(1L)
+                .voteName("점심커탐")
+                .cafe(cafe)
+                .shareUuid("shareUuid")
+                .adminUuid("adminUuid")
+                .status(VoteStatus.IN_PROGRESS)
+                .build();
+        String shareUuid = "shareUuid";
+        when(voteRepository.findByShareUuid(shareUuid))
+                .thenReturn(Optional.of(vote));
+        //when
+        VotePageResponse votePageResponse = voteService.getVote(shareUuid);
+        //then
+        assertEquals(votePageResponse.getVoteId(), 1L);
+        assertEquals(votePageResponse.getVoteName(),"점심커탐");
+        assertEquals(votePageResponse.getBrandId(),brand.getId());
+        assertEquals(votePageResponse.getBrandName(),brand.getName());
+        assertEquals(votePageResponse.getCafeDetailResponse().get(0).getCategory(),MenuCategory.COFFEE.toString());
     }
 }
