@@ -8,6 +8,11 @@ import com.keotam.cafe.domain.MenuCategory;
 import com.keotam.cafe.dto.response.CafeDetailResponse;
 import com.keotam.cafe.dto.response.MenuResponse;
 import com.keotam.global.config.SecurityConfig;
+import com.keotam.global.security.vote.VoterAuthenticationProvider;
+import com.keotam.global.security.vote.VoterAuthenticationToken;
+import com.keotam.global.security.vote.VoterPrincipal;
+import com.keotam.vote.domain.VoterType;
+import com.keotam.vote.domain.repository.VoterRepository;
 import com.keotam.vote.dto.request.VoteCreateRequest;
 import com.keotam.vote.dto.request.VoterCreateRequest;
 import com.keotam.vote.dto.response.VoteCreateResponse;
@@ -21,17 +26,15 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -46,6 +49,12 @@ class VoteControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private VoterRepository voterRepository;
+
+    @MockitoBean
+    private VoterAuthenticationProvider voterAuthenticationProvider;
 
     @Test
     @DisplayName("")
@@ -153,8 +162,87 @@ class VoteControllerTest {
                 .andExpect(jsonPath("$.cafeDetailResponse", hasSize(greaterThan(0))))
                 .andExpect(jsonPath("$.cafeDetailResponse[0].category").exists())
                 .andExpect(jsonPath("$.cafeDetailResponse[0].menus[0]").exists());
+    }
 
-        //TODO 투표 페이지 응답 객체 반환 시 메뉴에 대한 ID도 함께 반환해줘야한다.
-        //TODO 내일 관련 로직 수정 하고 테스트 코드 추가 필요
+    @Test
+    @DisplayName("재투표를 위해서 투표 조회 요청 시 투표 페이지 정보를 반환한다.")
+    void whenGetRequestSuccessReturnVotePageResponse() throws Exception {
+        //given
+        String shareUuid = "shareUuid";
+
+        BrandMenu menu1 = BrandMenu.builder()
+                .name("아메리카노")
+                .category(MenuCategory.COFFEE)
+                .price(2000)
+                .build();
+        BrandMenu menu2 = BrandMenu.builder()
+                .name("말차라떼")
+                .category(MenuCategory.NON_COFFEE)
+                .price(5000)
+                .build();
+        BrandMenu menu3 = BrandMenu.builder()
+                .name("카페라떼")
+                .category(MenuCategory.COFFEE)
+                .price(3000)
+                .build();
+        List<BrandMenu> menus = List.of(menu1,menu2,menu3);
+        Brand brand = Brand.builder()
+                .name("컴포즈")
+                .build();
+        brand.addMenu(menu1);
+        brand.addMenu(menu2);
+        brand.addMenu(menu3);
+
+        Cafe cafe = Cafe.builder()
+                .name("컴포즈")
+                .address("창원시")
+                .longitude(123.0)
+                .latitude(123.0)
+                .brand(brand)
+                .build();
+
+        Map<String, List<MenuResponse>> menuResponse = menus.stream()
+                .map(MenuResponse::fromEntity)
+                .sorted(Comparator.comparing(MenuResponse::getPrice))
+                .collect(Collectors.groupingBy(MenuResponse::getCategory));
+
+        List<CafeDetailResponse> cafeDetailResponses = menuResponse.entrySet()
+                .stream()
+                .map(entry -> new CafeDetailResponse(entry.getKey(), entry.getValue()))
+                .toList();
+
+        VotePageResponse response = VotePageResponse.builder()
+                .voteId(1L)
+                .voteName("점심커탐")
+                .brandId(brand.getId())
+                .brandName(brand.getName())
+                .cafeDetailResponse(cafeDetailResponses)
+                .build();
+        
+        given(voteService.getVote(any(String.class)))
+                .willReturn(response);
+
+        String voterUuid = "voterUuid";
+        VoterPrincipal principal = VoterPrincipal.builder()
+                .voterUuid(voterUuid)
+                .voterName("김참여")
+                .voterType(VoterType.INVITED)
+                .build();
+        VoterAuthenticationToken authenticationToken = new VoterAuthenticationToken(principal,principal.getAuthorities());
+        given(voterAuthenticationProvider.authenticate(any(VoterAuthenticationToken.class)))
+                .willReturn(authenticationToken);
+        //when
+        mockMvc.perform(get("/votes/"+shareUuid)
+                        .header("Voter-UUID",voterUuid))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.voteId").value(response.getVoteId()))
+                .andExpect(jsonPath("$.brandId").value(response.getBrandId()))
+                .andExpect(jsonPath("$.brandName").value(response.getBrandName()))
+                .andExpect(jsonPath("$.cafeDetailResponse").isArray())
+                .andExpect(jsonPath("$.cafeDetailResponse", hasSize(greaterThan(0))))
+                .andExpect(jsonPath("$.cafeDetailResponse[0].category").exists())
+                .andExpect(jsonPath("$.cafeDetailResponse[0].menus[0]").exists());
+        //then
+
     }
 }
