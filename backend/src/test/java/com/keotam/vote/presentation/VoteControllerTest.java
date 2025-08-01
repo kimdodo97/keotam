@@ -8,6 +8,7 @@ import com.keotam.cafe.domain.MenuCategory;
 import com.keotam.cafe.dto.response.CafeDetailResponse;
 import com.keotam.cafe.dto.response.MenuResponse;
 import com.keotam.global.config.SecurityConfig;
+import com.keotam.global.exception.KeotamException;
 import com.keotam.global.security.vote.VoterAuthenticationProvider;
 import com.keotam.global.security.vote.VoterAuthenticationToken;
 import com.keotam.global.security.vote.VoterPrincipal;
@@ -17,6 +18,7 @@ import com.keotam.vote.dto.request.VoteCreateRequest;
 import com.keotam.vote.dto.request.VoterCreateRequest;
 import com.keotam.vote.dto.response.VoteCreateResponse;
 import com.keotam.vote.dto.response.VotePageResponse;
+import com.keotam.vote.exception.VoterNotFoundException;
 import com.keotam.vote.service.VoteService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,11 +31,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -244,5 +248,21 @@ class VoteControllerTest {
                 .andExpect(jsonPath("$.cafeDetailResponse[0].menus[0]").exists());
         //then
 
+    }
+
+    @Test
+    @DisplayName("재투표를 위해서 투표 조회 요청 시 투표 페이지 정보를 반환한다.")
+    void whenVoterUuidIsInvalidsThrowException() throws Exception {
+        //given
+        String shareUuid = "shareUuid";
+        String voterUuid = "invalidVoterUuid";
+
+        given(voterAuthenticationProvider.authenticate(any(VoterAuthenticationToken.class)))
+                .willThrow(new VoterNotFoundException());
+
+        //when
+        mockMvc.perform(get("/votes/"+shareUuid)
+                        .header("Voter-UUID",voterUuid))
+                .andExpect(status().isUnauthorized());
     }
 }
